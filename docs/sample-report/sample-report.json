@@ -1,0 +1,314 @@
+{
+  "tool": "aws-security-auditor",
+  "version": "1.0.0",
+  "account": "123456789012",
+  "regions": [
+    "us-east-1"
+  ],
+  "services": [
+    "s3",
+    "iam",
+    "ec2"
+  ],
+  "scanned_at": "2026-10-17T00:16:26Z",
+  "summary": {
+    "CRITICAL": 4,
+    "HIGH": 7,
+    "MEDIUM": 10,
+    "LOW": 6,
+    "INFO": 2
+  },
+  "findings": [
+    {
+      "check_id": "EC2-01",
+      "service": "ec2",
+      "severity": "CRITICAL",
+      "resource": "sg-dc7514e9385dfecac (temp-debug-sg)",
+      "region": "us-east-1",
+      "title": "Security group allows ALL traffic from the internet",
+      "detail": "All protocols/ports open to 0.0.0.0/0",
+      "remediation": "Remove the rule; allow only the specific ports and source ranges required."
+    },
+    {
+      "check_id": "EC2-07",
+      "service": "ec2",
+      "severity": "CRITICAL",
+      "resource": "snap-c54d8f891d3b10e02",
+      "region": "us-east-1",
+      "title": "EBS snapshot is publicly shared",
+      "detail": "Any AWS account can create a volume from this snapshot and read its data.",
+      "remediation": "Remove the 'all' createVolumePermission and enable 'Block public access for EBS snapshots'."
+    },
+    {
+      "check_id": "IAM-01",
+      "service": "iam",
+      "severity": "CRITICAL",
+      "resource": "root",
+      "region": "global",
+      "title": "Root account does not have MFA enabled",
+      "detail": "The root user can do anything in the account, including closing it.",
+      "remediation": "Enable MFA (hardware key or virtual) on the root user and lock the credentials away."
+    },
+    {
+      "check_id": "S3-03",
+      "service": "s3",
+      "severity": "CRITICAL",
+      "resource": "arn:aws:s3:::acme-marketing-assets",
+      "region": "us-east-1",
+      "title": "Bucket policy allows public access",
+      "detail": "Statement(s) grant Principal '*' with no Condition. Actions: s3:GetObject",
+      "remediation": "Remove the Principal '*' statement or scope it with a Condition (e.g. aws:SourceVpce, aws:PrincipalOrgID)."
+    },
+    {
+      "check_id": "EC2-02",
+      "service": "ec2",
+      "severity": "HIGH",
+      "resource": "sg-0caee380f6adcccb5 (bastion-sg)",
+      "region": "us-east-1",
+      "title": "SSH (port 22) open to the internet",
+      "detail": "Rule tcp 22-22 from 0.0.0.0/0",
+      "remediation": "Restrict the source to known IPs, or use SSM Session Manager / a VPN instead of exposing management and database ports."
+    },
+    {
+      "check_id": "EC2-02",
+      "service": "ec2",
+      "severity": "HIGH",
+      "resource": "sg-0caee380f6adcccb5 (bastion-sg)",
+      "region": "us-east-1",
+      "title": "RDP (port 3389) open to the internet",
+      "detail": "Rule tcp 3389-3389 from ::/0",
+      "remediation": "Restrict the source to known IPs, or use SSM Session Manager / a VPN instead of exposing management and database ports."
+    },
+    {
+      "check_id": "IAM-05",
+      "service": "iam",
+      "severity": "HIGH",
+      "resource": "arn:aws:iam::123456789012:user/jsmith",
+      "region": "global",
+      "title": "Console user without MFA",
+      "detail": "'jsmith' can sign in to the console with only a password.",
+      "remediation": "Require MFA for this user (or move human users to IAM Identity Center)."
+    },
+    {
+      "check_id": "IAM-08",
+      "service": "iam",
+      "severity": "HIGH",
+      "resource": "arn:aws:iam::123456789012:user/jsmith",
+      "region": "global",
+      "title": "AdministratorAccess attached directly to a user",
+      "detail": "'jsmith' has full admin rights via a direct policy attachment.",
+      "remediation": "Grant permissions through groups/roles, apply least privilege, and use role assumption for admin tasks."
+    },
+    {
+      "check_id": "IAM-09",
+      "service": "iam",
+      "severity": "HIGH",
+      "resource": "arn:aws:iam::123456789012:user/ci-deploy",
+      "region": "global",
+      "title": "Inline policy grants full admin (*:*)",
+      "detail": "Inline policy 'deploy-everything' on 'ci-deploy' allows Action '*' on Resource '*'.",
+      "remediation": "Replace with a scoped managed policy; inline policies are hard to audit."
+    },
+    {
+      "check_id": "IAM-10",
+      "service": "iam",
+      "severity": "HIGH",
+      "resource": "arn:aws:iam::123456789012:policy/LegacyPowerUser",
+      "region": "global",
+      "title": "Customer-managed policy grants full admin (*:*)",
+      "detail": "'LegacyPowerUser' is attached to 1 principal(s).",
+      "remediation": "Scope the policy to the actions and resources actually needed."
+    },
+    {
+      "check_id": "S3-04",
+      "service": "s3",
+      "severity": "HIGH",
+      "resource": "arn:aws:s3:::acme-hr-exports",
+      "region": "us-east-1",
+      "title": "Bucket ACL grants access to a public group",
+      "detail": "READ granted to everyone on the internet",
+      "remediation": "Set Object Ownership to 'Bucket owner enforced' to disable ACLs, or remove the public grant."
+    },
+    {
+      "check_id": "EC2-03",
+      "service": "ec2",
+      "severity": "MEDIUM",
+      "resource": "i-3e03d3b6a98a0b49a",
+      "region": "us-east-1",
+      "title": "Instance allows IMDSv1",
+      "detail": "IMDSv1 is vulnerable to SSRF-based credential theft (the Capital One breach vector).",
+      "remediation": "Set HttpTokens=required (enforce IMDSv2) on the instance and in launch templates."
+    },
+    {
+      "check_id": "EC2-05",
+      "service": "ec2",
+      "severity": "MEDIUM",
+      "resource": "region/us-east-1",
+      "region": "us-east-1",
+      "title": "EBS encryption by default is disabled",
+      "detail": "New volumes in this region will not be encrypted unless requested explicitly.",
+      "remediation": "Enable 'Always encrypt new EBS volumes' in EC2 settings for every region you use."
+    },
+    {
+      "check_id": "EC2-06",
+      "service": "ec2",
+      "severity": "MEDIUM",
+      "resource": "vol-86a19b1ae13017c4f",
+      "region": "us-east-1",
+      "title": "EBS volume is not encrypted",
+      "detail": "50 GiB volume (unattached).",
+      "remediation": "Snapshot it, copy the snapshot with encryption, and restore to a new encrypted volume."
+    },
+    {
+      "check_id": "EC2-06",
+      "service": "ec2",
+      "severity": "MEDIUM",
+      "resource": "vol-dd0d78e2f59976c67",
+      "region": "us-east-1",
+      "title": "EBS volume is not encrypted",
+      "detail": "8 GiB volume (i-3e03d3b6a98a0b49a).",
+      "remediation": "Snapshot it, copy the snapshot with encryption, and restore to a new encrypted volume."
+    },
+    {
+      "check_id": "EC2-06",
+      "service": "ec2",
+      "severity": "MEDIUM",
+      "resource": "vol-fe66154871d899a6f",
+      "region": "us-east-1",
+      "title": "EBS volume is not encrypted",
+      "detail": "8 GiB volume (i-f131710b838db2da5).",
+      "remediation": "Snapshot it, copy the snapshot with encryption, and restore to a new encrypted volume."
+    },
+    {
+      "check_id": "S3-01",
+      "service": "s3",
+      "severity": "MEDIUM",
+      "resource": "account/123456789012",
+      "region": "global",
+      "title": "Account-level S3 Block Public Access is not fully enabled",
+      "detail": "Disabled settings: BlockPublicAcls, IgnorePublicAcls, BlockPublicPolicy, RestrictPublicBuckets",
+      "remediation": "Enable all four Block Public Access settings at the account level (S3 console > Block Public Access settings for this account)."
+    },
+    {
+      "check_id": "S3-02",
+      "service": "s3",
+      "severity": "MEDIUM",
+      "resource": "arn:aws:s3:::acme-hr-exports",
+      "region": "us-east-1",
+      "title": "Bucket Block Public Access is not fully enabled",
+      "detail": "Disabled settings: BlockPublicAcls, IgnorePublicAcls, BlockPublicPolicy, RestrictPublicBuckets",
+      "remediation": "Turn on all four Block Public Access settings for this bucket unless it intentionally serves public content (prefer CloudFront + OAC for that)."
+    },
+    {
+      "check_id": "S3-02",
+      "service": "s3",
+      "severity": "MEDIUM",
+      "resource": "arn:aws:s3:::acme-marketing-assets",
+      "region": "us-east-1",
+      "title": "Bucket Block Public Access is not fully enabled",
+      "detail": "Disabled settings: BlockPublicAcls, IgnorePublicAcls, BlockPublicPolicy, RestrictPublicBuckets",
+      "remediation": "Turn on all four Block Public Access settings for this bucket unless it intentionally serves public content (prefer CloudFront + OAC for that)."
+    },
+    {
+      "check_id": "S3-05",
+      "service": "s3",
+      "severity": "MEDIUM",
+      "resource": "arn:aws:s3:::acme-hr-exports",
+      "region": "us-east-1",
+      "title": "No default encryption configured",
+      "detail": "Bucket has no server-side encryption configuration.",
+      "remediation": "Enable default encryption (SSE-S3 at minimum, SSE-KMS for sensitive data)."
+    },
+    {
+      "check_id": "S3-05",
+      "service": "s3",
+      "severity": "MEDIUM",
+      "resource": "arn:aws:s3:::acme-marketing-assets",
+      "region": "us-east-1",
+      "title": "No default encryption configured",
+      "detail": "Bucket has no server-side encryption configuration.",
+      "remediation": "Enable default encryption (SSE-S3 at minimum, SSE-KMS for sensitive data)."
+    },
+    {
+      "check_id": "IAM-04",
+      "service": "iam",
+      "severity": "LOW",
+      "resource": "account",
+      "region": "global",
+      "title": "Password policy is weaker than recommended",
+      "detail": "minimum length 8 (< 14); password reuse prevention < 24",
+      "remediation": "Raise minimum length to 14 and reuse prevention to 24."
+    },
+    {
+      "check_id": "S3-06",
+      "service": "s3",
+      "severity": "LOW",
+      "resource": "arn:aws:s3:::acme-hr-exports",
+      "region": "us-east-1",
+      "title": "Versioning is not enabled",
+      "detail": "Deleted or overwritten objects (e.g. by ransomware) cannot be recovered.",
+      "remediation": "Enable versioning; pair it with lifecycle rules to control cost."
+    },
+    {
+      "check_id": "S3-06",
+      "service": "s3",
+      "severity": "LOW",
+      "resource": "arn:aws:s3:::acme-marketing-assets",
+      "region": "us-east-1",
+      "title": "Versioning is not enabled",
+      "detail": "Deleted or overwritten objects (e.g. by ransomware) cannot be recovered.",
+      "remediation": "Enable versioning; pair it with lifecycle rules to control cost."
+    },
+    {
+      "check_id": "S3-07",
+      "service": "s3",
+      "severity": "LOW",
+      "resource": "arn:aws:s3:::acme-hr-exports",
+      "region": "us-east-1",
+      "title": "Server access logging is disabled",
+      "detail": "No request-level access logs for incident investigation.",
+      "remediation": "Enable server access logging (or CloudTrail S3 data events) to a separate log bucket."
+    },
+    {
+      "check_id": "S3-07",
+      "service": "s3",
+      "severity": "LOW",
+      "resource": "arn:aws:s3:::acme-marketing-assets",
+      "region": "us-east-1",
+      "title": "Server access logging is disabled",
+      "detail": "No request-level access logs for incident investigation.",
+      "remediation": "Enable server access logging (or CloudTrail S3 data events) to a separate log bucket."
+    },
+    {
+      "check_id": "S3-07",
+      "service": "s3",
+      "severity": "LOW",
+      "resource": "arn:aws:s3:::acme-secure-logs",
+      "region": "us-east-1",
+      "title": "Server access logging is disabled",
+      "detail": "No request-level access logs for incident investigation.",
+      "remediation": "Enable server access logging (or CloudTrail S3 data events) to a separate log bucket."
+    },
+    {
+      "check_id": "EC2-04",
+      "service": "ec2",
+      "severity": "INFO",
+      "resource": "i-3e03d3b6a98a0b49a",
+      "region": "us-east-1",
+      "title": "Instance has a public IP address",
+      "detail": "Public IP 54.214.223.3 \u2014 confirm this host is meant to be internet-facing.",
+      "remediation": "Place non-public workloads in private subnets behind a load balancer or NAT."
+    },
+    {
+      "check_id": "EC2-04",
+      "service": "ec2",
+      "severity": "INFO",
+      "resource": "i-f131710b838db2da5",
+      "region": "us-east-1",
+      "title": "Instance has a public IP address",
+      "detail": "Public IP 54.214.11.22 \u2014 confirm this host is meant to be internet-facing.",
+      "remediation": "Place non-public workloads in private subnets behind a load balancer or NAT."
+    }
+  ],
+  "skipped_calls": []
+}
